@@ -12,17 +12,17 @@ class my_Treeview():
         #cores para personalizar sua tabela - variaveis livres
         self.bg = self.master['background']
         self.fg = 'black'
-        self.selectBg = 'lightblue'
+        self.selectBg = '#FFFFCD'
         self.select_fg = '#71007A'
         self.fieldBg = self.master['background']
         self.tag_normal_bg = self.bg
         self.tag_normal_fg =self.fg
-        self.tag_alerta_bg = '#F9FF11'
-        self.tag_alerta_fg = 'black'
-        self.tag_perigo_bg = '#AC0000'
-        self.tag_perigo_fg = 'white'
-        self.tag_ok_bg = '#1DFF1D'
-        self.tag_ok_fg = 'black'
+        self.tag_alerta_bg = 'white'
+        self.tag_alerta_fg = '#C48C00'
+        self.tag_perigo_bg = 'white'
+        self.tag_perigo_fg = '#8A0000'
+        self.tag_ok_bg = 'white'
+        self.tag_ok_fg = '#006405'
         #variaveis fixas -  não mexer nestas.
         self.x = x
         self.y = y
@@ -75,6 +75,10 @@ class my_Treeview():
         self.treeview.tag_configure('alerta', background=self.tag_alerta_bg, foreground=self.tag_alerta_fg)
         self.treeview.tag_configure('perigo', background=self.tag_perigo_bg, foreground=self.tag_perigo_fg)
         self.treeview.tag_configure('ok', background=self.tag_ok_bg, foreground=self.tag_ok_fg)
+        self.treeview.tag_configure('normal2', background='#DADBEE', foreground=self.tag_normal_fg)
+        self.treeview.tag_configure('alerta2', background='#DADBEE', foreground=self.tag_alerta_fg)
+        self.treeview.tag_configure('perigo2', background='#DADBEE', foreground=self.tag_perigo_fg)
+        self.treeview.tag_configure('ok2', background='#DADBEE', foreground=self.tag_ok_fg)
 class entry_personalizado():
     def __init__(self, master: tkinter.Tk, xPixel: int, yPixel: int, width: int, height: int, nome: str, tam_Letra: int, password: bool= False):
         #Configure cores na classe
@@ -225,12 +229,14 @@ class app_Adm(Operacional.funcoes_adm):
         self.tela['background']='white'
     def gerar_aba_treeview(self):
         self.frame_treeview = tkinter.Frame(self.tela, background='white')
-        self.frame_treeview.place(x=0,y=300,width=self.width,height=400)
+        self.frame_treeview.place(x=0,y=400,width=self.width,height=300)
     def gerar_obj_notificacoes(self):
-        self.carregar_cabecalho_treeview('pedidos')
-        self.treev_principal = my_Treeview(master=self.frame_treeview,x=0,y=0,width=self.width-20,height=380,
+        self.carregar_cabecalho_treeview('pedidos',colunas=[1,2,3,4,5,6,7,8,9,10,11])
+        self.treev_principal = my_Treeview(master=self.frame_treeview,x=0,y=0,width=self.width-20,height=300,
                                            colunas=self.cabecalho,pathern=True)
-        self.carregar_tabela_com_codigo('pedidos')
+        self.carregar_tabela_com_codigo(nome_aba='pedidos',caso_pai=[3,'pedido'],colunas=[1,2,3,4,5,6,7,8,9,10,11],
+                                        treeview=self.treev_principal,filtro=False,
+                                        tags=[[6,'espera-alerta'],[7,'aceito-ok','pendente-alerta','negado-perigo']])
     def gerar_obj_acao_estoque(self):
         return print('fazer')
     def gerar_obj_dash(self):

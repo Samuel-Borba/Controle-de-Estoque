@@ -1,3 +1,5 @@
+import openpyxl
+
 import Banco_de_dados
 import tkinter
 import tkinter.messagebox
@@ -119,32 +121,54 @@ class funcoes_adm(Banco_de_dados.BD):
             '4': self.gerar_obj_cadastro
         }
         funcoes[str(posicao)]()
-    def carregar_cabecalho_treeview(self, nome_aba):
+    def carregar_cabecalho_treeview(self, nome_aba, colunas: list):
+        ''' as colunas é uma lista com o numero das colunas a serem adicionadas
+        ex.: [0,1,5,7]'''
         wb = self.abrir_BD()
         ws = wb[nome_aba]
         #a variavel cabecalho vem com self porque queremos usar na classe app_Adm!
         self.cabecalho = []
-        for col in range(1,1_000_000,1):
+        for col in colunas:
             if ws.cell(row=1,column=col).value == None: break
             self.cabecalho.append(ws.cell(row=1,column=col).value)
         self.fechar_BD(wb)
     def filtro_geral(self, colunas=[], lin=0):
         self.filtro = True
-    def tags_personalizadas(self, n_colunas: list, lista_nome_tags):
-        '''preciso de ajuda pra criar uma função melhor. por enquanto esta assim:
-        n_colunas escolhe a coluna pra verificar o texto
-        lista '''
-    def carregar_tabela_com_codigo(self, nome_aba, filtro=False,tags=[]):
-        '''as tags sempre são 4 e na ordem: [normal,alerta,pedido,ok]'''
+    def tags_personalizadas(self,linha: int, coluna_e_codigo: list, ws: openpyxl.Workbook):
+        '''como deve ser escrito a lista colunas: colunas = [[numero coluna,texto-tag,texto-tag]...]
+        exemplo: [[2,pendente-perigo,espera-alerta]] (esse caso irá usar a tag perigo para o texto pendente)'''
+        tag = 'normal'
+        if len(coluna_e_codigo) == 1:
+            print(f'coluna {coluna_e_codigo[0]} sem informações para tags')
+            return tag
+        for i in range(1,len(coluna_e_codigo),1):
+            if ws.cell(row=linha,column=coluna_e_codigo[0]).value == coluna_e_codigo[i][:str(coluna_e_codigo[i]).find('-')]:
+                tag =  coluna_e_codigo[i][str(coluna_e_codigo[i]).find('-')+1:]
+                return tag
+        return tag
+
+    def carregar_tabela_com_codigo(self, nome_aba, caso_pai,colunas='', treeview='', filtro=False, tags=False):
+        '''
+        --caso_pai:
+        o caso pai é uma lista com dois termos: [numero coluna, texto da condicional]
+        ex: [6,'pedido']
+        na coluna 6, toda linha que tiver escrito pedido
+
+        --tags:
+        as tags são confusas. para usar as tags, precisa escrever uma lista assim:
+        ex: tags = [[2,pendente-perigo,espera-alerta..],[4,pendente-perigo,espera-alerta..]].
+        sempre com duas listas internas, uma é pra escolher a tag do item pai, outra dos filhos.
+        dentro dessas listas estão os parametros: [numero coluna,texto-tag,texto-tag...]
+        '''
+        if tags != False:
+            if len(tags) != 2:
+                print('as tags desta função precisam de 2 listas no formato [num col, texto-tag,texto-tag..]')
+                return
+        if treeview == '': treeview = self.treev_principal
+        if colunas == False: colunas = self.cabecalho
         wb = self.abrir_BD()
         ws = wb[nome_aba]
         linha = []
-        #descobrindo ultima coluna preenchida
-        ultima_Col = 0
-        for col in range(2,1_000,1):
-            if ws.cell(row=1,column=col+1).value == None:
-                ultima_Col=col
-                break
         #trazendo codigos unicos[coluna de codigos] para o loop
         lista_pai=[]
         item_adicionado = False #variavel de controle
@@ -163,37 +187,25 @@ class funcoes_adm(Banco_de_dados.BD):
         #precisamos de dois indices diferentes para criar o parentesco
         indice = 0
         indice_Pai = 0
-        #essas tags vao ser correlacionadas as ordens das tags informadas na função
-        minhatag = ['normal', 'alerta', 'perigo', 'ok']
-        pd_tab = ['codigo']
-
         #vamos carregar a treeview toda!
         for pathern in lista_pai: #esse for controla a dependencia dos itens
             for lin in range(2,1_000_000,1):
                 if ws.cell(row=lin, column=1).value == None: break
                 if ws.cell(row=lin, column=1).value == pathern:
-                    #precisamos criar depois uma função pra adicionar tags fora desta!
-                    if ws.cell(row=lin, column=3).value == 'pedido': #precisamos colocar uma variavel flex aqui!
-                        minha_tag = 'normal'
-                        if ws.cell(row=lin, column=6).value == 'espera':
-                            minha_tag = 'alerta'
-                        for x in range(2,ultima_Col+1):
+                    if ws.cell(row=lin, column=caso_pai[0]).value == caso_pai[1]:
+                        minha_tag = self.tags_personalizadas(linha=lin,coluna_e_codigo=tags[0],ws=ws)
+                        for x in colunas:
+                            if x == 1: continue
                             linha.append(ws.cell(row=lin,column=x).value)
-                        self.treev_principal.treeview.insert('',index=indice,iid=str(indice_Pai) + 'p',text=ws.cell(row=lin,column=1).value,values=linha, tags=minha_tag)
+                        treeview.treeview.insert('',index=indice,iid=str(indice_Pai) + 'p',text=ws.cell(row=lin,column=1).value,values=linha, tags=minha_tag)
                         indice +=1
             for lin in range(2,1_000_000,1): #vamos adicionar os itens filhos!
                 if ws.cell(row=lin, column=1).value == None: break
                 if ws.cell(row=lin,column=1).value == pathern:
-                    if ws.cell(row=lin, column=3).value == 'pedido': continue #precisamos colocar uma variavel flex aqui!
-                    minha_tag = 'normal'
-                    if ws.cell(row=lin, column=7).value == 'pendente':
-                        minha_tag = 'alerta'
-                    elif ws.cell(row=lin, column=7).value == 'negado':
-                        minha_tag = 'perigo'
-                    elif ws.cell(row=lin, column=7).value == 'aceito':
-                        minha_tag = 'ok'
-                    linha = [ws.cell(row=lin, column=x).value for x in range(2, ultima_Col + 1)]
-                    self.treev_principal.treeview.insert(str(indice_Pai) + 'p',index=indice,iid=str(indice)+'_'+str(indice_Pai)+'p',values=linha, tags=minha_tag)
+                    if ws.cell(row=lin, column=caso_pai[0]).value == caso_pai[1]: continue
+                    minha_tag = self.tags_personalizadas(linha=lin, coluna_e_codigo=tags[1], ws=ws)
+                    linha = [ws.cell(row=lin, column=x).value for x in colunas if x != 1]
+                    treeview.treeview.insert(str(indice_Pai) + 'p',index=indice,iid=str(indice)+'_'+str(indice_Pai)+'p',values=linha, tags=minha_tag)
                     indice += 1
             indice_Pai +=1
         self.fechar_BD(wb)
