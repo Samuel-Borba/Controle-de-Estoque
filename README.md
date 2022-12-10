@@ -59,7 +59,7 @@ execução do trabalho é fator critico de sucesso
 - Login de tecnicos ainda não está em funcionamento
 
 # Video do YouTube mostrando a execução.
-Ainda não está no yt!
+https://www.youtube.com/watch?v=u1VgKeGVUIU
 
 
 
