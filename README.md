@@ -2,24 +2,17 @@
 <img width="762" alt="logoestaciodfs" src="https://user-images.githubusercontent.com/104142117/204535322-571ae0a5-b475-4441-83b2-06ba02d9930d.png">
 
 ---
+
 - Team: **29**
 - Turma: **22.3**
 - Colaboradores:
 
-- Aluno: **Samuel Guilherme Borba Ramos**
-- Matricula: **202208770282**
+- Aluno: **Samuel Guilherme Borba Ramos**, Matricula: **202208770282**
+- Aluno: **Everton Gomes Costa**, Matricula: **202209113455**
+- Aluno: **Fábio Isidio Sena da Silva**, Matricula: **202208549926**
+- Aluno: **Luiz Henrique Medeiros dos Santos**, Matricula: **202209069146**
+- Aluno: **Gicelda Fierz**, Matricula: **202209285639**
 
-- Aluno: **Everton Gomes Costa**
-- Matricula: **202209113455**
-
-- Aluno: **Fábio Isidio Sena da Silva**
-- Matricula: **202208549926**
-
-- Aluno: **Luiz Henrique Medeiros dos Santos**
-- Matricula: **202209069146**
-
-- Aluno: **Gicelda Fierz**
-- Matricula: **202209285639**
 ---
 
 # MISSÃO CERTIFICAÇÃO
